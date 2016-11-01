@@ -34,6 +34,9 @@
             <input type="password" class="form-control" placeholder="{{ trans('adminlte_lang::message.password') }}" name="password"/>
             <span class="glyphicon glyphicon-lock form-control-feedback"></span>
         </div>
+        <div class="form-group hidden profiles">
+            <select id="profiles" name="profiles" class="form-control"></select>
+        </div>
         <div class="row">
             <div class="col-xs-8">
                 <div class="checkbox icheck">
@@ -74,7 +77,17 @@
                             console.log(data);
                         },
                         success: function(data) {
-                            console.log(data);
+                            if (data.authenticated) {
+                                if (data.user_teams.length === 1) {
+                                    window.location = "{{ url('/home') }}";
+                                } else {
+                                    $("#profiles").append("<option value='0'>Seleccione un Perfil</option>");
+                                    $.each(data.user_teams, function(i, u) {
+                                        $("#profiles").append("<option value='" + i + "'>" + u + "</option>");
+                                    });
+                                    $(".profiles").removeClass("hidden");
+                                }
+                            }
                         },
                         type: "post",
                         url: "{{ url('/login') }}"
