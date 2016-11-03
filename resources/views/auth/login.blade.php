@@ -25,6 +25,7 @@
     <div class="login-box-body">
     <p class="login-box-msg"> {{ trans('adminlte_lang::message.siginsession') }} </p>
     <form class="form-login" action="{{ url('/login') }}" method="post">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
         <div class="form-group has-feedback {{ $errors->has('email') ? ' has-error' : '' }}">
             <input type="email" class="form-control" placeholder="{{ trans('adminlte_lang::message.email') }}" name="email"/>
@@ -63,6 +64,7 @@
     <script>
         $(function () {
             $(document).on("ready", function() {
+                PNotify.prototype.options.styling = "bootstrap3";
                 // configure iCheck
                 $('input').iCheck({
                     checkboxClass: 'icheckbox_square-blue',
@@ -74,19 +76,41 @@
                     $.ajax({
                         data: $(this).serialize(),
                         error: function(data) {
-                            console.log(data);
+                            var oNotify = null;
+                            if (typeof data.responseText === "undefined") {
+                                oNotify = {
+                                    title: "Acceso Negado",
+                                    text: "Error grave, por favor revise la consola.",
+                                    type: "error"
+                                };
+                            } else {
+                                oNotify = {
+                                    title: "Acceso Negado",
+                                    text: data.responseText,
+                                    type: "error"
+                                };
+                            }
+                            new PNotify(oNotify);
                         },
                         success: function(data) {
                             if (data.authenticated) {
                                 if (data.user_teams.length === 1) {
+                                    fnSetProfile(data.user_teams_id, data.user_teams);
                                     window.location = "{{ url('/home') }}";
                                 } else {
                                     $("#profiles").append("<option value='0'>Seleccione un Perfil</option>");
                                     $.each(data.user_teams, function(i, u) {
-                                        $("#profiles").append("<option value='" + i + "'>" + u + "</option>");
+                                        $("#profiles").append("<option value='" + data.user_teams_id[i] + "'>" + u + "</option>");
                                     });
                                     $(".profiles").removeClass("hidden");
                                 }
+                            } else {
+                                new PNotify({
+                                    title: 'Acceso Negado',
+                                    text: 'Credenciales Incorrectas.',
+                                    type: "error"
+                                });
+                                fnClearForm();
                             }
                         },
                         type: "post",
@@ -94,7 +118,34 @@
                     });
                     e.preventDefault();
                 });
+                // select profile and start session
+                $("#profiles").on("change", function() {
+                    fnSetProfile($(this).find("option:selected").val(), $(this).find("option:selected").text());
+                });
             });
+            function fnClearForm() {
+                $("input").val("");
+            }
+            function fnSetProfile(sProfileID, sProfile) {
+                $.ajax({
+                    data: {
+                        sProfileID: sProfileID,
+                        sProfile: sProfile,
+                    },
+                    dataType: "json",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    error: function(data) {
+                        console.log(data);
+                    },
+                    success: function(data) {
+                        window.location = "{{ url('/home') }}";
+                    },
+                    type: "post",
+                    url: "{{ url('/profile/set') }}"
+                });
+            }
         });
     </script>
 </body>
