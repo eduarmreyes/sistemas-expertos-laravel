@@ -16,3 +16,4 @@ Route::get('/', function () {
 });
 
 Route::post("/profile/set", "Controller@setProfile");
+Route::get("/menu/get", "HomeController@getMenu");
