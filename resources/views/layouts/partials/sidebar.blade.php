@@ -13,7 +13,13 @@
                 <div class="pull-left info">
                     <p>{{ Auth::user()->name }}</p>
                     <!-- Status -->
-                    <a href="#"><i class="fa fa-circle text-success"></i> {{ trans('adminlte_lang::message.online') }}</a>
+                    <a href="#"><i class="fa fa-circle text-success"></i>
+                        @if (Session::has("user.teams"))
+                            {{ Session::get("user.teams")[0] }}
+                        @else
+                            {{ trans('adminlte_lang::message.online') }}
+                        @endif
+                    </a>
                 </div>
             </div>
         @endif
