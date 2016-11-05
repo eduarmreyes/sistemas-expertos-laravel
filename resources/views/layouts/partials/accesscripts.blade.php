@@ -22,8 +22,11 @@
                     new PNotify(oNotify);
                 },
                 success: function(data) {
-                    $.each(data.menu, function(i, v) {
-                        $(".sidebar-menu").append("<li><a href='" + v.Url + "'><i class='" + v.Icono + "'></i> <span>" + v.Titulo + "</span></a></li>");
+                    $.each(data.menu_padres, function(i, v) {
+                        $(".sidebar-menu").append("<li data-menuid='" +v.IdMenuSistema + "' class='treeview'><a href='" + v.Url + "'><i class='" + v.Icono + "'></i> <span>" + v.Titulo + "</span><span class='pull-right-container'><i class='fa fa-angle-left pull-right'></i></span></a><ul class='treeview-menu'></ul></li>");
+                    });
+                    $.each(data.menu_hijos, function(i, v) {
+                        $(".sidebar-menu li[data-menuid=" + v.IdPadre + "] .treeview-menu").append("<li data-menuid='" +v.IdMenuSistema + "'><a href='" + v.Url + "'><i class='" + v.Icono + "'></i> <span>" + v.Titulo + "</span></a></li>");
                     });
                 },
                 type: "get",

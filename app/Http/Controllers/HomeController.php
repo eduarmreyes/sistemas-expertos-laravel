@@ -44,16 +44,26 @@ class HomeController extends Controller
      */
     public function getMenu() {
         // get menu for user
-        $menu = DB::table("menusistema")
+        $aMenuPadres = DB::table("menusistema")
             ->where([
-                ["Activo", "=", 1]
+                ["Activo", "=", 1],
+                ["IdPadre", "=", null]
+            ])
+            ->orderBy("Nivel")
+            ->get();
+
+        $aMenuHijos = DB::table("menusistema")
+            ->where([
+                ["Activo", "=", 1],
+                ["IdPadre", "!=", null]
             ])
             ->orderBy("Nivel")
             ->get();
 
         $aResponse = \Response::json(array(
             "success" => true,
-            "menu" => $menu
+            "menu_padres" => $aMenuPadres,
+            "menu_hijos" => $aMenuHijos
         ));
 
         return $aResponse;

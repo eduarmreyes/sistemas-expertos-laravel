@@ -12,4 +12,4 @@
       user experience. Slimscroll is required when using the
       fixed layout. -->
 
-@include('layouts.partials.menuscripts')
+@include('layouts.partials.accesscripts')
