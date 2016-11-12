@@ -4,6 +4,11 @@
     Log in
 @endsection
 
+@section("extra_plugin_assets")
+    <!-- PNotify -->
+    <link href="{{ asset('/css/pnotify.custom.css') }}" rel="stylesheet" type="text/css" />
+@endsection
+
 @section('content')
 <body class="hold-transition login-page">
     <div class="login-box">
@@ -64,7 +69,6 @@
     <script>
         $(function () {
             $(document).on("ready", function() {
-                PNotify.prototype.options.styling = "bootstrap3";
                 // configure iCheck
                 $('input').iCheck({
                     checkboxClass: 'icheckbox_square-blue',

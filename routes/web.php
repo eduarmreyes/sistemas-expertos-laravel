@@ -15,5 +15,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Profile routes
 Route::post("/profile/set", "Controller@setProfile");
+
+// Menu routes
 Route::get("/menu/get", "HomeController@getMenu");
+
+// Persona routes
+Route::get("/personas/show", "PersonaController@show");
+Route::get("/personas/getPersonas", "PersonaController@getPersonas");
+Route::post("/personas/savePersonas", "PersonaController@savePersonas");
