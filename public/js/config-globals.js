@@ -1,5 +1,7 @@
 (function() {
 	$(document).on("ready", function() {
-    PNotify.prototype.options.styling = "bootstrap3";
+		if (typeof PNotify !== "undefined") {
+	    PNotify.prototype.options.styling = "bootstrap3";
+		}
 	});
 })();

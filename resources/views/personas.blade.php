@@ -36,8 +36,7 @@
 	  <div class="box-body">
 		  <!-- form start -->
 		  <form role="form">
-			  <input type="hidden" name="_token" value="{{ csrf_token() }}">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+		  	<meta name="csrf-token" content="{{ csrf_token() }}">
 		    <div class="box-body">
 		      <div class="form-group">
 		        <label for="txtPersonaNombre">{{ trans("persona.name_label") }}</label>
@@ -138,6 +137,12 @@
 <script>
 	$(function () {
 		$(document).on("ready", function() {
+			// ajax setup
+			$.ajaxSetup({
+			    headers: {
+			        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			    }
+			});
 			var tbPersona = null;
 			//Date picker
 			$('#txtPersonaBirthday').datepicker({
@@ -160,7 +165,7 @@
 					if (data.personas.length > 0) {
 						$.each(data.personas, function(i, rows) {
 							var sSexoLabel = (rows.Sexo === "m") ? '<span class="label label-primary">' + rows.Sexo + '</label>' : '<span class="label label-warning">' + rows.Sexo + '</label>';
-							var codigo = "<tr data-persona-id='" + rows.Id + "'><td>" + rows.Nombres + "</td><td>" + rows.Apellidos + "</td><td>" + rows.FechaNacimiento + "</td><td>" + rows.Correo + "</td><td>" + rows.Estatura + "</td><td>" + rows.Peso + "</td><td>" + sSexoLabel + "</td><td><button data-persona-id='" + rows.Id + "' class='btnEditar btn btn-info'>Editar</button> - <button data-persona-id='" + rows.Id + "' class='btnEliminar btn btn-danger'>Eliminar</button></td></tr>";
+							var codigo = "<tr data-persona-id='" + rows.Id + "'><td> <i class='fa fa-user' aria-hidden='true'></i> " + rows.Nombres + "</td><td>" + rows.Apellidos + "</td><td><i class='fa fa-birthday-cake' aria-hidden='true'></i> " + rows.FechaNacimiento + "</td><td>" + rows.Correo + "</td><td>" + rows.Estatura + "</td><td>" + rows.Peso + "</td><td>" + sSexoLabel + "</td><td><button data-persona-id='" + rows.Id + "' class='btnEditar btn btn-info'>Editar</button> - <button data-persona-id='" + rows.Id + "' class='btnEliminar btn btn-danger'>Eliminar</button></td></tr>";
 							$("#tbPersona>tbody").append(codigo);
 						});
 						tbPersona = $("#tbPersona").DataTable();
@@ -201,20 +206,27 @@
 						}
 					},
 					success: function(data) {
+						$("#_token").val(data.csrf_token);
 						var sSexoLabel = (data.persona.Sexo === "m") ? '<span class="label label-primary">' + data.persona.Sexo + '</label>' : '<span class="label label-warning">' + data.persona.Sexo + '</label>';
-						$("#tbPersona").DataTable().row.add([
-						  data.persona.Nombres,
-							data.persona.Apellidos,
-							data.persona.FechaNacimiento,
-							data.persona.Correo,
-							data.persona.Estatura,
-							data.persona.Peso,
-							sSexoLabel,
-							"<button data-persona-id='" + data.persona.Id + "' class='btnEditar btn btn-info'>Editar</button> - <button data-persona-id='" + data.persona.Id + "' class='btnEliminar btn btn-danger'>Eliminar</button>"
-		       ]).draw(false);
+						var aData = [
+							  "<i class='fa fa-user' aria-hidden='true'></i> " + data.persona.Nombres,
+								data.persona.Apellidos,
+								"<i class='fa fa-birthday-cake' aria-hidden='true'></i> " + data.persona.FechaNacimiento,
+								data.persona.Correo,
+								data.persona.Estatura,
+								data.persona.Peso,
+								sSexoLabel,
+								"<button data-persona-id='" + data.persona.Id + "' class='btnEditar btn btn-info'>Editar</button> - <button data-persona-id='" + data.persona.Id + "' class='btnEliminar btn btn-danger'>Eliminar</button>"
+			       ];
+						if (data.is_new) {
+							$("#tbPersona").DataTable().row.add(aData).draw(false);
+						} else {
+							var row = tbPersona.row("[data-persona-id=" + data.persona.Id + "]");
+							row.data(aData).draw(false);
+						}
 						new PNotify({
 							title: "Éxito",
-							text: "La persona " + data.persona.Nombres,
+							text: "La persona " + data.persona.Nombres + " tiene su información al día",
 							type: "success"
 						});
 						fnClearForm();
@@ -225,10 +237,44 @@
 
 				e.preventDefault();
 			});
+			// click on edit
+			$("#tbPersona").on("click", ".btnEditar", function(e) {
+				// get persona from db
+				$.ajax({
+					data: "id=" + $(this).data("persona-id"),
+					dataType: "json",
+					error: function(data) {
+						//
+						console.log(data);
+					},
+					success: function(data) {
+						//
+						if (data.success) {
+							//
+							$("#txtPersonaNombre").val(data.personas[0].Nombres);
+							$("#txtPersonaApellidos").val(data.personas[0].Apellidos);
+							var oPersonaBirthday = new Date(data.personas[0].FechaNacimiento);
+							var sPersonaBirthday = (oPersonaBirthday.getMonth() + 1) + "/" + oPersonaBirthday.getDate() + "/" + oPersonaBirthday.getFullYear();
+							$("#txtPersonaBirthday").val(sPersonaBirthday);
+							$("#txtPersonaCorreo").val(data.personas[0].Correo);
+							$("#txtPersonaEstatura").val(data.personas[0].Estatura);
+							$("#txtPersonaPeso").val(data.personas[0].Peso);
+							$("#chkPersonaSexoMale").prop("checked", (data.personas[0].Sexo === "m"));
+							$("#chkPersonaSexoFemale").prop("checked", (data.personas[0].Sexo === "f"));
+							$(".minimal").iCheck('update');
+							$("form").data("id_persona", data.personas[0].Id);
+						}
+					},
+					type: "get",
+					url: "{{ url('/personas/getPersonas') }}"
+				});
+				e.preventDefault();
+			});
 			function fnClearForm() {
 				$("input").val("");
-				$("input[type=radio],input[type=checkbox]").prop("checked", false);
 				$("input[type=radio],input[type=checkbox]").iCheck("uncheck");
+				$("#chkPersonaSexoFemale").val("f")
+				$("#chkPersonaSexoMale").val("m")
 			}
 		});
 	});

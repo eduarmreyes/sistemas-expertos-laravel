@@ -24,26 +24,18 @@ class PersonaController extends Controller
     }
 
     /**
-     * Show the application dashboard.
-     *
-     * @return Response
-     */
-    public function show()
-    {
-        return view('personas');
-    }
-
-    /**
      * Return json with their Personas from DB.
      *
      * @return Response
      */
-    public function getPersonas() {
+    public function getPersonas(Request $request) {
+        $aWhere = [["Activo", "=", 1]];
+        if ($request->id) {
+            array_push($aWhere, ["id", "=", $request->id]);
+        }
         // get personas from user
         $personas = DB::table("personas")
-            ->where([
-                ["Activo", "=", 1]
-            ])
+            ->where($aWhere)
             ->get();
         $aResponse = \Response::json(array(
             "personas" => $personas,
@@ -61,11 +53,14 @@ class PersonaController extends Controller
      */
     public function savePersonas(Request $request) {
         $this->validatePersona($request);
+        $bIsNew = false;
         if ($request->id !== "undefined") {
             $oPersona = Persona::find($request->id);
         } else {
             $oPersona = new Persona;
+            $bIsNew = true;
         }
+
 
         $oPersona->Nombres = $request->txtPersonaNombre;
         $oPersona->Apellidos = $request->txtPersonaApellidos;
@@ -78,11 +73,23 @@ class PersonaController extends Controller
         $bPersonaSaved = $oPersona->save();
 
         $aResponse = \Response::json(array(
+            "csrf_token" => csrf_token(),
+            "is_new" => $bIsNew,
             "persona" => $oPersona,
             "success" => $bPersonaSaved
         ));
 
         return $aResponse;
+    }
+
+    /**
+     * Show the application dashboard.
+     *
+     * @return Response
+     */
+    public function show()
+    {
+        return view('personas');
     }
 
     /**
