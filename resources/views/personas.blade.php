@@ -273,7 +273,6 @@
 			// click on delete
 			$("#tbPersona").on("click", ".btnEliminar", function(e) {
 				// get persona from db
-				debugger;
 				$.ajax({
 					data: "id=" + $(this).data("persona-id"),
 					dataType: "json",
@@ -283,7 +282,6 @@
 					},
 					success: function(data) {
 						//
-						debugger;
 						if (data.success) {
 							//
 							var row = tbPersona.row("[data-persona-id=" + data.persona.Id + "]");
