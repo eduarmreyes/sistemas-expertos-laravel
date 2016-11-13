@@ -34,8 +34,13 @@ class PersonaController extends Controller
         $bIsNew = false;
         if ($request->id !== "undefined") {
             $oPersona = Persona::find($request->id);
-            $oPersona->Activo =  false;
+            $oPersona->Activo =  0;
             $bPersonaSaved = $oPersona->save();
+            $aResponse = \Response::json(array(
+                "persona" => $oPersona,
+                "success" => $bPersonaSaved
+            ));
+
         } else {
             $aResponse = \Response::json(array(
                 "reason" => "Id {$request->id} not found",
@@ -43,11 +48,6 @@ class PersonaController extends Controller
             ));
         }
 
-
-        $aResponse = \Response::json(array(
-            "persona" => $oPersona,
-            "success" => $bPersonaSaved
-        ));
 
         return $aResponse;
     }

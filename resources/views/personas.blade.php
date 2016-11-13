@@ -165,7 +165,7 @@
 					if (data.personas.length > 0) {
 						$.each(data.personas, function(i, rows) {
 							var sSexoLabel = (rows.Sexo === "m") ? '<span class="label label-primary">' + rows.Sexo + '</label>' : '<span class="label label-warning">' + rows.Sexo + '</label>';
-							var codigo = "<tr data-persona-id='" + rows.Id + "'><td> <i class='fa fa-user' aria-hidden='true'></i> " + rows.Nombres + "</td><td>" + rows.Apellidos + "</td><td><i class='fa fa-birthday-cake' aria-hidden='true'></i> " + rows.FechaNacimiento + "</td><td>" + rows.Correo + "</td><td>" + rows.Estatura + "</td><td>" + rows.Peso + "</td><td>" + sSexoLabel + "</td><td><button data-persona-id='" + rows.Id + "' class='btnEditar btn btn-info'>Editar</button> - <button data-persona-id='" + rows.Id + "' class='btnEliminar btn btn-danger'>Eliminar</button></td></tr>";
+							var codigo = "<tr data-persona-id='" + rows.id + "'><td> <i class='fa fa-user' aria-hidden='true'></i> " + rows.Nombres + "</td><td>" + rows.Apellidos + "</td><td><i class='fa fa-birthday-cake' aria-hidden='true'></i> " + rows.FechaNacimiento + "</td><td>" + rows.Correo + "</td><td>" + rows.Estatura + "</td><td>" + rows.Peso + "</td><td>" + sSexoLabel + "</td><td><button data-persona-id='" + rows.id + "' class='btnEditar btn btn-info'>Editar</button> - <button data-persona-id='" + rows.id + "' class='btnEliminar btn btn-danger'>Eliminar</button></td></tr>";
 							$("#tbPersona>tbody").append(codigo);
 						});
 						tbPersona = $("#tbPersona").DataTable();
@@ -216,12 +216,12 @@
 								data.persona.Estatura,
 								data.persona.Peso,
 								sSexoLabel,
-								"<button data-persona-id='" + data.persona.Id + "' class='btnEditar btn btn-info'>Editar</button> - <button data-persona-id='" + data.persona.Id + "' class='btnEliminar btn btn-danger'>Eliminar</button>"
+								"<button data-persona-id='" + data.persona.id + "' class='btnEditar btn btn-info'>Editar</button> - <button data-persona-id='" + data.persona.id + "' class='btnEliminar btn btn-danger'>Eliminar</button>"
 			       ];
 						if (data.is_new) {
 							$("#tbPersona").DataTable().row.add(aData).draw(false);
 						} else {
-							var row = tbPersona.row("[data-persona-id=" + data.persona.Id + "]");
+							var row = tbPersona.row("[data-persona-id=" + data.persona.id + "]");
 							row.data(aData).draw(false);
 						}
 						new PNotify({
@@ -262,7 +262,7 @@
 							$("#chkPersonaSexoMale").prop("checked", (data.personas[0].Sexo === "m"));
 							$("#chkPersonaSexoFemale").prop("checked", (data.personas[0].Sexo === "f"));
 							$(".minimal").iCheck('update');
-							$("form").data("id_persona", data.personas[0].Id);
+							$("form").data("id_persona", data.personas[0].id);
 						}
 					},
 					type: "get",
@@ -284,7 +284,7 @@
 						//
 						if (data.success) {
 							//
-							var row = tbPersona.row("[data-persona-id=" + data.persona.Id + "]");
+							var row = tbPersona.row("[data-persona-id=" + data.persona.id + "]");
 							row.remove().draw(false);
 						}
 					},
