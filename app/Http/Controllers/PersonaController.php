@@ -24,6 +24,35 @@ class PersonaController extends Controller
     }
 
     /**
+     * Delete persona from the DB
+     * Return json with success or not
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return Response
+     */
+    public function deletePersonaById(Request $request) {
+        $bIsNew = false;
+        if ($request->id !== "undefined") {
+            $oPersona = Persona::find($request->id);
+            $oPersona->Activo =  false;
+            $bPersonaSaved = $oPersona->save();
+        } else {
+            $aResponse = \Response::json(array(
+                "reason" => "Id {$request->id} not found",
+                "success" => false
+            ));
+        }
+
+
+        $aResponse = \Response::json(array(
+            "persona" => $oPersona,
+            "success" => $bPersonaSaved
+        ));
+
+        return $aResponse;
+    }
+
+    /**
      * Return json with their Personas from DB.
      *
      * @return Response
@@ -73,7 +102,6 @@ class PersonaController extends Controller
         $bPersonaSaved = $oPersona->save();
 
         $aResponse = \Response::json(array(
-            "csrf_token" => csrf_token(),
             "is_new" => $bIsNew,
             "persona" => $oPersona,
             "success" => $bPersonaSaved

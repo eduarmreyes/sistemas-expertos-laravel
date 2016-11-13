@@ -25,3 +25,4 @@ Route::get("/menu/get", "HomeController@getMenu");
 Route::get("/personas/show", "PersonaController@show");
 Route::get("/personas/getPersonas", "PersonaController@getPersonas");
 Route::post("/personas/savePersonas", "PersonaController@savePersonas");
+Route::delete("/personas/deletePersona", "PersonaController@deletePersonaById");

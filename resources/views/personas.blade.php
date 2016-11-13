@@ -270,6 +270,31 @@
 				});
 				e.preventDefault();
 			});
+			// click on delete
+			$("#tbPersona").on("click", ".btnEliminar", function(e) {
+				// get persona from db
+				debugger;
+				$.ajax({
+					data: "id=" + $(this).data("persona-id"),
+					dataType: "json",
+					error: function(data) {
+						//
+						console.log(data);
+					},
+					success: function(data) {
+						//
+						debugger;
+						if (data.success) {
+							//
+							var row = tbPersona.row("[data-persona-id=" + data.persona.Id + "]");
+							row.remove().draw(false);
+						}
+					},
+					type: "delete",
+					url: "{{ url('/personas/deletePersona') }}"
+				});
+				e.preventDefault();
+			});
 			function fnClearForm() {
 				$("input").val("");
 				$("input[type=radio],input[type=checkbox]").iCheck("uncheck");
